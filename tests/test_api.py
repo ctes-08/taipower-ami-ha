@@ -1,9 +1,14 @@
 from __future__ import annotations
 
+import socket
+import ssl
 import sys
 import unittest
 from datetime import date
 from pathlib import Path
+from types import SimpleNamespace
+from unittest.mock import patch
+from urllib.error import URLError
 
 MODULE_DIR = Path(__file__).resolve().parents[1] / "custom_components" / "taipower_ami"
 sys.path.insert(0, str(MODULE_DIR))
@@ -12,6 +17,8 @@ from api import (  # noqa: E402
     AmiCredentials,
     AmiProtocolError,
     TaipowerWebClient,
+    _connection_error_message,
+    _create_https_context,
     _roc_year,
     parse_comparison_payload,
     parse_fifteen_payload,
@@ -142,6 +149,62 @@ class EndpointContractTests(unittest.TestCase):
             client.calls[4][1],
             {"day1": "2026-08-27", "day2": "2026-08-28"},
         )
+
+
+class TlsCompatibilityTests(unittest.TestCase):
+    def test_context_retains_certificate_and_hostname_verification(self):
+        context = _create_https_context()
+
+        self.assertEqual(context.verify_mode, ssl.CERT_REQUIRED)
+        self.assertTrue(context.check_hostname)
+        strict_flag = getattr(ssl, "VERIFY_X509_STRICT", 0)
+        if strict_flag:
+            self.assertFalse(context.verify_flags & strict_flag)
+
+    def test_context_clears_only_strict_validation_flag(self):
+        strict_flag = getattr(ssl, "VERIFY_X509_STRICT", 0)
+        if not strict_flag:
+            self.skipTest("This Python/OpenSSL build has no strict validation flag")
+
+        retained_flag = getattr(ssl, "VERIFY_X509_TRUSTED_FIRST", 0)
+        if not retained_flag:
+            self.skipTest("This Python/OpenSSL build has no second validation flag")
+        fake_context = SimpleNamespace(
+            verify_flags=strict_flag | retained_flag,
+        )
+        with patch(
+            "api.ssl.create_default_context", return_value=fake_context
+        ) as create_default_context:
+            result = _create_https_context()
+
+        create_default_context.assert_called_once_with()
+        self.assertIs(result, fake_context)
+        self.assertEqual(result.verify_flags, retained_flag)
+
+    def test_connection_errors_are_classified_without_raw_details(self):
+        cases = (
+            (
+                URLError(ssl.SSLCertVerificationError(1, "secret TLS detail")),
+                "Taipower TLS verification failed",
+            ),
+            (
+                URLError(socket.gaierror(-2, "secret DNS detail")),
+                "Taipower DNS lookup failed",
+            ),
+            (
+                URLError(TimeoutError("secret timeout detail")),
+                "Taipower request timed out",
+            ),
+            (
+                URLError("secret generic detail"),
+                "Taipower connection failed",
+            ),
+        )
+        for error, expected in cases:
+            with self.subTest(expected=expected):
+                message = _connection_error_message(error)
+                self.assertEqual(message, expected)
+                self.assertNotIn("secret", message)
 
 
 if __name__ == "__main__":

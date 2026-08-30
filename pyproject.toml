@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "taipower-ami-ha"
-version = "0.1.0a1"
+version = "0.1.0a2"
 description = "Alpha Home Assistant custom integration for read-only Taipower AMI data"
 readme = "README.md"
 license = "Apache-2.0"

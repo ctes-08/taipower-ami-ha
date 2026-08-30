@@ -9,13 +9,21 @@ raw response bodies.
 from __future__ import annotations
 
 import json
+import socket
+import ssl
 from collections.abc import Mapping
 from dataclasses import dataclass, field
 from datetime import UTC, date, datetime
 from typing import Any
 from urllib.error import HTTPError, URLError
 from urllib.parse import urlencode, urlparse
-from urllib.request import HTTPRedirectHandler, ProxyHandler, Request, build_opener
+from urllib.request import (
+    HTTPRedirectHandler,
+    HTTPSHandler,
+    ProxyHandler,
+    Request,
+    build_opener,
+)
 
 BASE_URL = "https://service.taipower.com.tw"
 API_ROOT = "/ebpps2/amichart/api"
@@ -170,7 +178,11 @@ class TaipowerWebClient:
     def __init__(self, credentials: AmiCredentials, timeout: float = 20.0) -> None:
         self._credentials = validate_credentials(credentials)
         self._timeout = timeout
-        self._opener = build_opener(ProxyHandler({}), _NoRedirectHandler())
+        self._opener = build_opener(
+            ProxyHandler({}),
+            HTTPSHandler(context=_create_https_context()),
+            _NoRedirectHandler(),
+        )
 
     def fetch_fifteen_minutes(self, target_day: date) -> list[FifteenMinutePoint]:
         """Fetch the official 15-minute data for one date."""
@@ -268,10 +280,10 @@ class TaipowerWebClient:
             if exc.code == 429:
                 raise AmiConnectionError("Taipower rate limited the request") from None
             raise AmiConnectionError(f"Taipower returned HTTP {exc.code}") from None
-        except (TimeoutError, URLError) as exc:
-            raise AmiConnectionError(
-                f"Taipower request failed ({type(exc).__name__})"
-            ) from None
+        except TimeoutError:
+            raise AmiConnectionError("Taipower request timed out") from None
+        except URLError as exc:
+            raise AmiConnectionError(_connection_error_message(exc)) from None
 
         if len(raw) > MAX_RESPONSE_BYTES:
             raise AmiProtocolError("Taipower response exceeded the safety limit")
@@ -289,6 +301,36 @@ class _NoRedirectHandler(HTTPRedirectHandler):
         """Reject redirects so login pages cannot be mistaken for API data."""
 
         return None
+
+
+def _create_https_context() -> ssl.SSLContext:
+    """Create a verified context compatible with Taipower's legacy TWCA chain.
+
+    Python 3.14 enables OpenSSL strict RFC 5280 validation by default.  The
+    certificate chain currently served by Taipower contains an older
+    intermediate without a Subject Key Identifier, so strict mode rejects it.
+    Clear only that strict-mode flag while retaining CA trust, hostname,
+    validity-period, and signature verification.
+    """
+
+    context = ssl.create_default_context()
+    strict_flag = getattr(ssl, "VERIFY_X509_STRICT", 0)
+    if strict_flag:
+        context.verify_flags &= ~strict_flag
+    return context
+
+
+def _connection_error_message(error: URLError) -> str:
+    """Classify a connection failure without exposing its raw details."""
+
+    reason = error.reason
+    if isinstance(reason, ssl.SSLError):
+        return "Taipower TLS verification failed"
+    if isinstance(reason, socket.gaierror):
+        return "Taipower DNS lookup failed"
+    if isinstance(reason, TimeoutError):
+        return "Taipower request timed out"
+    return "Taipower connection failed"
 
 
 def _validate_opaque_value(name: str, value: str) -> None:
