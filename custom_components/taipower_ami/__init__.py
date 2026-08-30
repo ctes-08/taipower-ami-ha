@@ -6,13 +6,13 @@ import asyncio
 
 import voluptuous as vol
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.const import CONF_ENTRY_ID, Platform
+from homeassistant.const import Platform
 from homeassistant.core import HomeAssistant, ServiceCall
 from homeassistant.exceptions import ServiceValidationError
 from homeassistant.helpers import config_validation as cv
 from homeassistant.helpers.typing import ConfigType
 
-from .const import DOMAIN, SERVICE_REFRESH_DATA
+from .const import ATTR_ENTRY_ID, DOMAIN, SERVICE_REFRESH_DATA
 from .coordinator import TaipowerAmiCoordinator
 
 PLATFORMS = (Platform.SENSOR, Platform.BUTTON)
@@ -54,7 +54,7 @@ def _async_register_services(hass: HomeAssistant) -> None:
 
     async def _async_refresh(call: ServiceCall) -> None:
         coordinators = hass.data.get(DOMAIN, {})
-        entry_id = call.data.get(CONF_ENTRY_ID)
+        entry_id = call.data.get(ATTR_ENTRY_ID)
         if entry_id is not None:
             coordinator = coordinators.get(entry_id)
             if coordinator is None:
@@ -75,5 +75,5 @@ def _async_register_services(hass: HomeAssistant) -> None:
         DOMAIN,
         SERVICE_REFRESH_DATA,
         _async_refresh,
-        schema=vol.Schema({vol.Optional(CONF_ENTRY_ID): cv.string}),
+        schema=vol.Schema({vol.Optional(ATTR_ENTRY_ID): cv.string}),
     )

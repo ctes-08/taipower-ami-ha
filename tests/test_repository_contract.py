@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import re
+import tomllib
 import unittest
 from pathlib import Path
 
@@ -66,6 +67,8 @@ class RepositoryContractTests(unittest.TestCase):
             INTEGRATION / "translations" / "en.json",
             INTEGRATION / "translations" / "zh-Hant.json",
             INTEGRATION / "diagnostics.py",
+            ROOT / "tests" / "conftest.py",
+            ROOT / "tests" / "ha_lifecycle.py",
         }
         self.assertEqual(
             [], sorted(str(path) for path in required if not path.is_file())
@@ -132,6 +135,36 @@ class RepositoryContractTests(unittest.TestCase):
         for reference in action_references:
             with self.subTest(reference=reference):
                 self.assertRegex(reference, r"\A[0-9a-f]{40}\Z")
+        checkout_count = workflow.count("uses: actions/checkout@")
+        self.assertGreater(checkout_count, 0)
+        self.assertEqual(
+            checkout_count,
+            workflow.count("persist-credentials: false"),
+        )
+
+    def test_stable_home_assistant_lifecycle_runtime_is_pinned(self):
+        project = tomllib.loads((ROOT / "pyproject.toml").read_text(encoding="utf-8"))
+        self.assertEqual(
+            project["project"]["optional-dependencies"]["test"],
+            ["pytest==9.0.3", "ruff==0.16.5"],
+        )
+        self.assertEqual(
+            project["project"]["optional-dependencies"]["ha-test"],
+            [
+                "homeassistant==2026.8.3",
+                "pytest-homeassistant-custom-component==0.13.357",
+            ],
+        )
+        self.assertEqual(
+            project["tool"]["pytest"]["ini_options"]["asyncio_mode"], "auto"
+        )
+
+        workflow = (ROOT / ".github" / "workflows" / "validate.yml").read_text(
+            encoding="utf-8"
+        )
+        self.assertIn("Home Assistant lifecycle (2026.8.3)", workflow)
+        self.assertIn('python-version: "3.14"', workflow)
+        self.assertIn("python -m pytest tests/ha_lifecycle.py", workflow)
 
     def test_public_tree_contains_no_sensitive_filenames(self):
         forbidden_names = {

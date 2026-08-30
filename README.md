@@ -78,8 +78,9 @@ service.
 
 This source tree has HACS-compatible placement, but it is not publication-ready
 yet. English runtime text is now shipped in `translations/en.json`, and private
-staging CI runs unit tests, Ruff, the repository privacy contract, and Home
-Assistant `hassfest`.
+staging CI runs unit tests, Ruff, the repository privacy contract, a
+socket-blocked Home Assistant 2026.8.3 lifecycle test, and Home Assistant
+`hassfest`.
 
 The remaining gates before the first public release are:
 
@@ -92,8 +93,10 @@ The remaining gates before the first public release are:
   the repository remains private;
 - make the reviewed repository public, then enable and pass the official HACS
   validation action;
-- validate setup, refresh, expired-session recovery, unload, reinstall, and
-  diagnostics in a disposable Home Assistant instance;
+- complete a manual Windows-to-Home-Assistant handoff smoke test in a
+  disposable instance. CI already exercises setup, refresh, reauthentication,
+  unload, removal, re-add, and diagnostics with fake data and all non-local
+  sockets blocked;
 - publish the Windows companion separately and keep its unsigned or signed
   release artifacts and checksums outside this HACS repository.
 
@@ -115,6 +118,23 @@ python -m compileall -q custom_components tests
 ruff check .
 python -m unittest discover -s tests -v
 ```
+
+The real Home Assistant lifecycle test requires Linux, Python 3.14.2 or newer,
+and a separate dependency set pinned to the stable Home Assistant release:
+
+```bash
+python -m pip install ".[ha-test]"
+python -m pytest tests/ha_lifecycle.py
+```
+
+The package can be installed on Windows, but Home Assistant's test runner uses
+the POSIX-only `fcntl` module. The Ubuntu CI job is therefore the authoritative
+lifecycle result; Windows remains suitable for the fast parser and contract
+tests above.
+
+The Home Assistant pytest plugin disables non-local sockets for every lifecycle
+test. The Taipower fetch function is also replaced with deterministic fake
+snapshots, and the disposable credential file contains test-only opaque values.
 
 The client is synchronous by design because it uses Python's standard-library
 HTTP stack. Home Assistant calls it only through `async_add_executor_job`.

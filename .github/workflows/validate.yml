@@ -21,13 +21,15 @@ jobs:
     steps:
       - name: Check out repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
       - name: Set up Python
         uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
         with:
           python-version: "3.13"
           cache: pip
       - name: Install test tools
-        run: python -m pip install --upgrade pip pytest ruff
+        run: python -m pip install ".[test]"
       - name: Compile Python sources
         run: python -m compileall -q custom_components tests
       - name: Lint
@@ -41,6 +43,8 @@ jobs:
     steps:
       - name: Check out repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
       - name: Set up Python
         uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
         with:
@@ -48,11 +52,32 @@ jobs:
       - name: Validate repository contract
         run: python tests/test_repository_contract.py -v
 
+  ha-lifecycle:
+    name: Home Assistant lifecycle (2026.8.3)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Set up Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.14"
+          cache: pip
+      - name: Install stable Home Assistant test runtime
+        run: python -m pip install ".[ha-test]"
+      - name: Run isolated Home Assistant lifecycle tests
+        run: python -m pytest tests/ha_lifecycle.py
+
   hassfest:
     name: Home Assistant hassfest
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
       - name: Run hassfest
         uses: home-assistant/actions/hassfest@a7c616ce81ccda50150bf1595786c71b1883fabb
