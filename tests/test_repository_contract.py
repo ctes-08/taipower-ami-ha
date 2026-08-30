@@ -142,8 +142,17 @@ class RepositoryContractTests(unittest.TestCase):
             workflow.count("persist-credentials: false"),
         )
 
-    def test_stable_home_assistant_lifecycle_runtime_is_pinned(self):
+    def test_home_assistant_lifecycle_matrix_is_pinned(self):
         project = tomllib.loads((ROOT / "pyproject.toml").read_text(encoding="utf-8"))
+        hacs = json.loads((ROOT / "hacs.json").read_text(encoding="utf-8"))
+        self.assertEqual(
+            hacs,
+            {
+                "name": "Taipower AMI",
+                "country": "TW",
+                "homeassistant": "2025.12.0",
+            },
+        )
         self.assertEqual(
             project["project"]["optional-dependencies"]["test"],
             ["pytest==9.0.3", "ruff==0.16.5"],
@@ -156,14 +165,25 @@ class RepositoryContractTests(unittest.TestCase):
             ],
         )
         self.assertEqual(
+            project["project"]["optional-dependencies"]["ha-test-minimum"],
+            [
+                f"homeassistant=={hacs['homeassistant']}",
+                "pytest-homeassistant-custom-component==0.13.298",
+            ],
+        )
+        self.assertEqual(
             project["tool"]["pytest"]["ini_options"]["asyncio_mode"], "auto"
         )
 
         workflow = (ROOT / ".github" / "workflows" / "validate.yml").read_text(
             encoding="utf-8"
         )
-        self.assertIn("Home Assistant lifecycle (2026.8.3)", workflow)
-        self.assertIn('python-version: "3.14"', workflow)
+        self.assertIn('ha_version: "2025.12.0 minimum"', workflow)
+        self.assertIn('ha_version: "2026.8.3 stable"', workflow)
+        self.assertIn('python: "3.13"', workflow)
+        self.assertIn('python: "3.14"', workflow)
+        self.assertIn("extra: ha-test-minimum", workflow)
+        self.assertIn("extra: ha-test", workflow)
         self.assertIn("python -m pytest tests/ha_lifecycle.py", workflow)
 
     def test_public_tree_contains_no_sensitive_filenames(self):

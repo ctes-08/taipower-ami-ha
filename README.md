@@ -79,8 +79,9 @@ service.
 This source tree has HACS-compatible placement, but it is not publication-ready
 yet. English runtime text is now shipped in `translations/en.json`, and private
 staging CI runs unit tests, Ruff, the repository privacy contract, a
-socket-blocked Home Assistant 2026.8.3 lifecycle test, and Home Assistant
-`hassfest`.
+socket-blocked lifecycle tests against both the declared minimum Home Assistant
+2025.12.0 release and the reviewed stable Home Assistant 2026.8.3 release, and
+Home Assistant `hassfest`.
 
 The remaining gates before the first public release are:
 
@@ -99,6 +100,12 @@ The remaining gates before the first public release are:
   sockets blocked;
 - publish the Windows companion separately and keep its unsigned or signed
   release artifacts and checksums outside this HACS repository.
+
+The HACS metadata identifies this Taiwan-only service with `country: TW` and
+declares Home Assistant 2025.12.0 as its minimum supported release. Both that
+minimum and the reviewed stable release are exercised by the isolated lifecycle
+matrix. Only keys documented by the current HACS manifest specification are
+kept in `hacs.json`.
 
 HACS requires a public GitHub repository for normal distribution. A private
 remote is useful for CI and review, but functional testing during that phase
@@ -119,8 +126,17 @@ ruff check .
 python -m unittest discover -s tests -v
 ```
 
-The real Home Assistant lifecycle test requires Linux, Python 3.14.2 or newer,
-and a separate dependency set pinned to the stable Home Assistant release:
+The real Home Assistant lifecycle test requires Linux and a separate virtual
+environment for each pinned runtime. The declared minimum uses Python 3.13 and
+Home Assistant 2025.12.0:
+
+```bash
+python -m pip install ".[ha-test-minimum]"
+python -m pytest tests/ha_lifecycle.py
+```
+
+The reviewed stable runtime uses Python 3.14.2 or newer and Home Assistant
+2026.8.3:
 
 ```bash
 python -m pip install ".[ha-test]"
