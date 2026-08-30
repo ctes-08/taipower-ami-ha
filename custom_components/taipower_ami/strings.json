@@ -1,0 +1,65 @@
+{
+  "title": "Taipower AMI",
+  "config": {
+    "step": {
+      "user": {
+        "title": "Connect Taipower AMI",
+        "description": "Install the separate Windows companion, complete a normal Taipower login, and transfer the minimal credential file before continuing.",
+        "data": {
+          "credential_file": "Credential file relative to the Home Assistant config directory",
+          "update_interval": "Update interval (minutes)"
+        }
+      },
+      "reauth_confirm": {
+        "title": "Renew Taipower AMI authorization",
+        "description": "Use the Windows companion to replace the credential file, then submit this form."
+      }
+    },
+    "error": {
+      "credential_file": "The credential handoff file is missing, invalid, or outside the Home Assistant config directory."
+    },
+    "abort": {
+      "already_configured": "Taipower AMI is already configured.",
+      "reauth_successful": "Authorization was renewed successfully."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Taipower AMI options",
+        "data": {
+          "credential_file": "Credential file relative to the Home Assistant config directory",
+          "update_interval": "Update interval (minutes)"
+        }
+      }
+    },
+    "error": {
+      "credential_file": "The credential handoff file is missing, invalid, or outside the Home Assistant config directory."
+    }
+  },
+  "entity": {
+    "sensor": {
+      "latest_15m": {"name": "Latest 15-minute energy"},
+      "today": {"name": "Today energy"},
+      "this_month": {"name": "This month energy"},
+      "this_year": {"name": "This year energy"},
+      "comparison_delta": {"name": "Today versus yesterday delta"},
+      "status": {"name": "Data status"}
+    },
+    "button": {
+      "refresh": {"name": "Refresh data"}
+    }
+  },
+  "services": {
+    "refresh_data": {
+      "name": "Refresh Taipower AMI data",
+      "description": "Fetch all five read-only AMI endpoints immediately.",
+      "fields": {
+        "entry_id": {
+          "name": "Config entry",
+          "description": "Leave empty to refresh every configured Taipower AMI entry."
+        }
+      }
+    }
+  }
+}

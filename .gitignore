@@ -1,0 +1,31 @@
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.tox/
+.nox/
+.venv/
+.env
+.env.*
+!.env.example
+
+# Home Assistant runtime and secrets
+.storage/
+.taipower_ami/
+credentials.json
+*.har
+*.sqlite*
+secrets.yaml
+
+# Editors and build outputs
+.idea/
+.vscode/
+dist/
+build/
+*.egg-info/
+coverage.xml
+.coverage
+.coverage.*
+htmlcov/

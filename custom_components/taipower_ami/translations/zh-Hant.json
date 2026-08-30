@@ -1,0 +1,65 @@
+{
+  "title": "台電 AMI",
+  "config": {
+    "step": {
+      "user": {
+        "title": "連接台電 AMI",
+        "description": "請先安裝獨立的 Windows Companion、正常登入台電，並完成最小憑證檔交接後再繼續。",
+        "data": {
+          "credential_file": "相對於 Home Assistant 設定目錄的憑證檔路徑",
+          "update_interval": "更新間隔（分鐘）"
+        }
+      },
+      "reauth_confirm": {
+        "title": "更新台電 AMI 授權",
+        "description": "請用 Windows Companion 更新憑證檔，再送出此表單。"
+      }
+    },
+    "error": {
+      "credential_file": "憑證交接檔不存在、格式無效，或路徑超出 Home Assistant 設定目錄。"
+    },
+    "abort": {
+      "already_configured": "台電 AMI 已設定。",
+      "reauth_successful": "授權更新成功。"
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "台電 AMI 選項",
+        "data": {
+          "credential_file": "相對於 Home Assistant 設定目錄的憑證檔路徑",
+          "update_interval": "更新間隔（分鐘）"
+        }
+      }
+    },
+    "error": {
+      "credential_file": "憑證交接檔不存在、格式無效，或路徑超出 Home Assistant 設定目錄。"
+    }
+  },
+  "entity": {
+    "sensor": {
+      "latest_15m": {"name": "最新 15 分鐘用電"},
+      "today": {"name": "今日用電"},
+      "this_month": {"name": "本月用電"},
+      "this_year": {"name": "本年用電"},
+      "comparison_delta": {"name": "今日與昨日差值"},
+      "status": {"name": "資料狀態"}
+    },
+    "button": {
+      "refresh": {"name": "立即更新資料"}
+    }
+  },
+  "services": {
+    "refresh_data": {
+      "name": "更新台電 AMI 資料",
+      "description": "立即讀取五個唯讀 AMI 端點。",
+      "fields": {
+        "entry_id": {
+          "name": "設定項目",
+          "description": "留空會更新所有台電 AMI 設定項目。"
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "domain": "taipower_ami",
+  "name": "Taipower AMI",
+  "config_flow": true,
+  "documentation": "https://github.com/OWNER/taipower-ami-ha",
+  "integration_type": "service",
+  "iot_class": "cloud_polling",
+  "requirements": [],
+  "version": "0.1.0-alpha.1"
+}

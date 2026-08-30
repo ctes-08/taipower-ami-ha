@@ -1,0 +1,11 @@
+refresh_data:
+  name: Refresh Taipower AMI data
+  description: Fetch all five read-only AMI endpoints immediately.
+  fields:
+    entry_id:
+      name: Config entry
+      description: Leave empty to refresh every configured Taipower AMI entry.
+      required: false
+      selector:
+        config_entry:
+          integration: taipower_ami
