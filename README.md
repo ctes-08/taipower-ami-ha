@@ -135,6 +135,11 @@ python -m pip install ".[ha-test-minimum]"
 python -m pytest tests/ha_lifecycle.py
 ```
 
+That minimum-runtime extra also pins `pycares` to the last compatible 4.x
+release. Home Assistant 2025.12.0 pins `aiodns` 3.5.0, whose broad dependency
+range otherwise permits an incompatible newer `pycares` API. The stable-runtime
+extra intentionally keeps its own newer dependency set.
+
 The reviewed stable runtime uses Python 3.14.2 or newer and Home Assistant
 2026.8.3:
 

@@ -169,6 +169,7 @@ class RepositoryContractTests(unittest.TestCase):
             [
                 f"homeassistant=={hacs['homeassistant']}",
                 "pytest-homeassistant-custom-component==0.13.298",
+                "pycares==4.11.0",
             ],
         )
         self.assertEqual(
