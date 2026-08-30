@@ -16,6 +16,7 @@ from .const import DOMAIN, SERVICE_REFRESH_DATA
 from .coordinator import TaipowerAmiCoordinator
 
 PLATFORMS = (Platform.SENSOR, Platform.BUTTON)
+CONFIG_SCHEMA = cv.config_entry_only_config_schema(DOMAIN)
 
 
 async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:

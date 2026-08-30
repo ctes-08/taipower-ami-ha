@@ -63,6 +63,9 @@ def _load_integration_module():
     core.ServiceCall = ServiceCall
     exceptions.ServiceValidationError = ServiceValidationError
     config_validation.string = str
+    config_validation.config_entry_only_config_schema = (
+        lambda domain: {"config_entry_only": domain}
+    )
     helpers.config_validation = config_validation
     helpers_typing.ConfigType = dict
 
@@ -136,6 +139,12 @@ class RefreshCoordinator:
 
 
 class IntegrationServiceTests(unittest.TestCase):
+    def test_yaml_configuration_is_explicitly_config_entry_only(self):
+        self.assertEqual(
+            integration.CONFIG_SCHEMA,
+            {"config_entry_only": integration.DOMAIN},
+        )
+
     def test_async_setup_registers_service_and_rejects_unknown_entry(self):
         hass = FakeHass()
 
