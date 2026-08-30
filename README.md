@@ -76,22 +76,15 @@ service.
 
 ## HACS publication status
 
-This source tree has HACS-compatible placement, but it is not publication-ready
-yet. English runtime text is now shipped in `translations/en.json`, and private
-staging CI runs unit tests, Ruff, the repository privacy contract, a
+This source tree has HACS-compatible placement, but final publication gates
+remain. English runtime text is now shipped in `translations/en.json`, and
+private staging CI runs unit tests, Ruff, the repository privacy contract, a
 socket-blocked lifecycle tests against both the declared minimum Home Assistant
 2025.12.0 release and the reviewed stable Home Assistant 2026.8.3 release, and
 Home Assistant `hassfest`.
 
 The remaining gates before the first public release are:
 
-- select and add a public-source license;
-- replace the neutral `OWNER` placeholder in `manifest.json`, add the final
-  GitHub code owner and issue URL, and rerun the neutrality contract. The
-  current staging account handle conflicts with that contract and therefore is
-  intentionally not embedded in tracked public source. The temporary
-  `@OWNER` codeowner exists only to exercise the complete hassfest schema while
-  the repository remains private;
 - make the reviewed repository public, then enable and pass the official HACS
   validation action;
 - complete a manual Windows-to-Home-Assistant handoff smoke test in a
@@ -110,11 +103,8 @@ kept in `hacs.json`.
 HACS requires a public GitHub repository for normal distribution. A private
 remote is useful for CI and review, but functional testing during that phase
 must use a local copy of `custom_components/taipower_ami`. HACS validation is
-intentionally not enabled while this repository is private and has no selected
-license; it must be added and pass after both gates are satisfied.
-
-No open-source license has been selected yet. Until a license is added, the
-repository contents are not offered under an open-source license.
+intentionally not enabled while this repository is private; it must be added
+and pass after the visibility gate is satisfied.
 
 ## Development
 
@@ -181,3 +171,7 @@ disposable Home Assistant validation gate.
 
 Follow [SECURITY.md](SECURITY.md) for private reporting. Do not open a public
 issue containing credentials or a captured browser session.
+
+## License
+
+Licensed under the [Apache License 2.0](LICENSE).

@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import re
+import struct
 import tomllib
 import unittest
 from pathlib import Path
@@ -52,6 +53,7 @@ class RepositoryContractTests(unittest.TestCase):
             ROOT / ".github" / "ISSUE_TEMPLATE" / "bug_report.yml",
             ROOT / ".github" / "ISSUE_TEMPLATE" / "config.yml",
             ROOT / ".github" / "workflows" / "validate.yml",
+            ROOT / "LICENSE",
             ROOT / "README.md",
             ROOT / "SECURITY.md",
             ROOT / "hacs.json",
@@ -63,6 +65,8 @@ class RepositoryContractTests(unittest.TestCase):
             INTEGRATION / "storage.py",
             INTEGRATION / "sensor.py",
             INTEGRATION / "button.py",
+            INTEGRATION / "brand" / "icon.png",
+            INTEGRATION / "brand" / "icon@2x.png",
             INTEGRATION / "services.yaml",
             INTEGRATION / "translations" / "en.json",
             INTEGRATION / "translations" / "zh-Hant.json",
@@ -78,17 +82,34 @@ class RepositoryContractTests(unittest.TestCase):
             "Custom integrations must ship runtime English in translations/en.json",
         )
 
-    def test_manifest_keeps_alpha_identity_and_neutral_owner_placeholder(self):
+    def test_local_brand_png_dimensions(self):
+        expected_dimensions = {
+            INTEGRATION / "brand" / "icon.png": (256, 256),
+            INTEGRATION / "brand" / "icon@2x.png": (512, 512),
+        }
+        for path, expected in expected_dimensions.items():
+            with self.subTest(path=path):
+                header = path.read_bytes()[:24]
+                self.assertGreaterEqual(len(header), 24)
+                self.assertEqual(header[:8], b"\x89PNG\r\n\x1a\n")
+                self.assertEqual(header[12:16], b"IHDR")
+                self.assertEqual(struct.unpack(">II", header[16:24]), expected)
+
+    def test_manifest_keeps_alpha_identity_and_public_repository_links(self):
         manifest = json.loads(
             (INTEGRATION / "manifest.json").read_text(encoding="utf-8")
         )
         self.assertEqual(manifest["domain"], "taipower_ami")
         self.assertEqual(manifest["name"], "Taipower AMI")
         self.assertEqual(
-            manifest["documentation"], "https://github.com/OWNER/taipower-ami-ha"
+            manifest["documentation"],
+            "https://github.com/ctes-08/taipower-ami-ha",
         )
-        self.assertEqual(manifest["codeowners"], ["@OWNER"])
-        self.assertNotIn("issue_tracker", manifest)
+        self.assertEqual(manifest["codeowners"], ["@ctes-08"])
+        self.assertEqual(
+            manifest["issue_tracker"],
+            "https://github.com/ctes-08/taipower-ami-ha/issues",
+        )
         self.assertEqual(manifest["integration_type"], "service")
         self.assertEqual(manifest["iot_class"], "cloud_polling")
         self.assertTrue(manifest["config_flow"])
@@ -145,6 +166,10 @@ class RepositoryContractTests(unittest.TestCase):
     def test_home_assistant_lifecycle_matrix_is_pinned(self):
         project = tomllib.loads((ROOT / "pyproject.toml").read_text(encoding="utf-8"))
         hacs = json.loads((ROOT / "hacs.json").read_text(encoding="utf-8"))
+        self.assertEqual(
+            project["project"]["license"],
+            "Apache-2.0",
+        )
         self.assertEqual(
             hacs,
             {
@@ -242,8 +267,8 @@ class RepositoryContractTests(unittest.TestCase):
             "legacy publisher identifier": re.compile(
                 re.escape("si" + "73"), re.IGNORECASE
             ),
-            "legacy organization identifier": re.compile(
-                re.escape("CT" + "ES"), re.IGNORECASE
+            "legacy organization identifier outside approved GitHub handle": re.compile(
+                re.escape("CT" + "ES") + r"(?!-08\b)", re.IGNORECASE
             ),
             "household notification entity": re.compile(
                 re.escape("notify." + "primary_phone")
@@ -283,8 +308,13 @@ class RepositoryContractTests(unittest.TestCase):
                 with self.subTest(path=path, pattern=label):
                     self.assertIsNone(pattern.search(text))
 
+            email_matches = [
+                match.group(0)
+                for match in email_pattern.finditer(text)
+                if match.group(0).lower() != "icon@2x.png"
+            ]
             with self.subTest(path=path, pattern="email address"):
-                self.assertIsNone(email_pattern.search(text))
+                self.assertEqual([], email_matches)
 
             for match in credential_literal.finditer(text):
                 relative_parts = path.relative_to(ROOT).parts
