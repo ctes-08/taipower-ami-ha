@@ -164,13 +164,8 @@ class RepositoryContractTests(unittest.TestCase):
                 "pytest-homeassistant-custom-component==0.13.357",
             ],
         )
-        self.assertEqual(
-            project["project"]["optional-dependencies"]["ha-test-minimum"],
-            [
-                f"homeassistant=={hacs['homeassistant']}",
-                "pytest-homeassistant-custom-component==0.13.298",
-                "pycares==4.11.0",
-            ],
+        self.assertNotIn(
+            "ha-test-minimum", project["project"]["optional-dependencies"]
         )
         self.assertEqual(
             project["tool"]["pytest"]["ini_options"]["asyncio_mode"], "auto"
@@ -183,8 +178,12 @@ class RepositoryContractTests(unittest.TestCase):
         self.assertIn('ha_version: "2026.8.3 stable"', workflow)
         self.assertIn('python: "3.13"', workflow)
         self.assertIn('python: "3.14"', workflow)
-        self.assertIn("extra: ha-test-minimum", workflow)
-        self.assertIn("extra: ha-test", workflow)
+        self.assertIn(f'"homeassistant=={hacs["homeassistant"]}"', workflow)
+        self.assertIn(
+            '"pytest-homeassistant-custom-component==0.13.298"', workflow
+        )
+        self.assertIn('"pycares==4.11.0"', workflow)
+        self.assertIn("python -m pip install \".[ha-test]\"", workflow)
         self.assertIn("python -m pytest tests/ha_lifecycle.py", workflow)
 
     def test_public_tree_contains_no_sensitive_filenames(self):

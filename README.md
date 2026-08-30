@@ -131,14 +131,19 @@ environment for each pinned runtime. The declared minimum uses Python 3.13 and
 Home Assistant 2025.12.0:
 
 ```bash
-python -m pip install ".[ha-test-minimum]"
+python -m pip install . \
+  "homeassistant==2025.12.0" \
+  "pytest-homeassistant-custom-component==0.13.298" \
+  "pycares==4.11.0"
 python -m pytest tests/ha_lifecycle.py
 ```
 
-That minimum-runtime extra also pins `pycares` to the last compatible 4.x
-release. Home Assistant 2025.12.0 pins `aiodns` 3.5.0, whose broad dependency
-range otherwise permits an incompatible newer `pycares` API. The stable-runtime
-extra intentionally keeps its own newer dependency set.
+The historical minimum runtime is installed directly only in the isolated
+compatibility job; it is not declared as an installable project dependency and
+is never shipped to users. The job pins `pycares` to the last compatible 4.x
+release because Home Assistant 2025.12.0 pins `aiodns` 3.5.0, whose broad
+dependency range otherwise permits an incompatible newer `pycares` API. The
+stable-runtime extra intentionally keeps its own newer dependency set.
 
 The reviewed stable runtime uses Python 3.14.2 or newer and Home Assistant
 2026.8.3:
