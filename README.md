@@ -87,7 +87,9 @@ The remaining gates before the first public release are:
 - replace the neutral `OWNER` placeholder in `manifest.json`, add the final
   GitHub code owner and issue URL, and rerun the neutrality contract. The
   current staging account handle conflicts with that contract and therefore is
-  intentionally not embedded in tracked public source;
+  intentionally not embedded in tracked public source. The temporary
+  `@OWNER` codeowner exists only to exercise the complete hassfest schema while
+  the repository remains private;
 - make the reviewed repository public, then enable and pass the official HACS
   validation action;
 - validate setup, refresh, expired-session recovery, unload, reinstall, and

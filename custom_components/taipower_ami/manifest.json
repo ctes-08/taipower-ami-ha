@@ -1,6 +1,7 @@
 {
   "domain": "taipower_ami",
   "name": "Taipower AMI",
+  "codeowners": ["@OWNER"],
   "config_flow": true,
   "documentation": "https://github.com/OWNER/taipower-ami-ha",
   "integration_type": "service",

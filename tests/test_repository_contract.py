@@ -84,7 +84,7 @@ class RepositoryContractTests(unittest.TestCase):
         self.assertEqual(
             manifest["documentation"], "https://github.com/OWNER/taipower-ami-ha"
         )
-        self.assertNotIn("codeowners", manifest)
+        self.assertEqual(manifest["codeowners"], ["@OWNER"])
         self.assertNotIn("issue_tracker", manifest)
         self.assertEqual(manifest["integration_type"], "service")
         self.assertEqual(manifest["iot_class"], "cloud_polling")
