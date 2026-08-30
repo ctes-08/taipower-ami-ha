@@ -56,10 +56,10 @@ profile, or diagnostic output that has not been reviewed.
 All file and HTTP work runs in Home Assistant's executor. The event loop does
 not perform synchronous disk or network I/O.
 
-## Local alpha installation
+## Manual alpha installation
 
-Until a public release exists, copy this directory into a test Home Assistant
-instance:
+For local development or a manual test installation, copy this directory into
+the Home Assistant instance:
 
 ```text
 custom_components/taipower_ami
@@ -93,23 +93,18 @@ repository.
 
 ## HACS publication status
 
-This source tree has HACS-compatible placement, but final publication gates
-remain. English runtime text is now shipped in `translations/en.json`, and
-private staging CI runs unit tests, Ruff, the repository privacy contract, a
-socket-blocked lifecycle tests against both the declared minimum Home Assistant
-2025.12.0 release and the reviewed stable Home Assistant 2026.8.3 release, and
-Home Assistant `hassfest`.
+This repository is public and has passed the configured official HACS and Home
+Assistant `hassfest` validation jobs. CI also runs unit tests, Ruff, the
+repository privacy contract, and socket-blocked lifecycle tests against both
+the declared minimum Home Assistant 2025.12.0 release and the reviewed stable
+Home Assistant 2026.8.3 release.
 
-The remaining gates before the first public release are:
-
-- make the reviewed repository public, then run and pass the already configured
-  official HACS validation job;
-- complete a manual Windows-to-Home-Assistant handoff smoke test in a
-  disposable instance. CI already exercises setup, refresh, reauthentication,
-  unload, removal, re-add, and diagnostics with fake data and all non-local
-  sockets blocked;
-- publish the Windows companion separately and keep its unsigned or signed
-  release artifacts and checksums outside this HACS repository.
+The first public release remains an alpha intended for HACS custom-repository
+installation and Windows-to-Home-Assistant handoff smoke testing. CI exercises
+setup, refresh, reauthentication, unload, removal, re-add, and diagnostics with
+fake data and all non-local sockets blocked. The Windows companion is published
+separately; its unsigned or signed artifacts and checksums do not belong in this
+HACS repository.
 
 The HACS metadata identifies this Taiwan-only service with `country: TW` and
 declares Home Assistant 2025.12.0 as its minimum supported release. Both that
