@@ -77,31 +77,49 @@ service.
 ## HACS publication status
 
 This source tree has HACS-compatible placement, but it is not publication-ready
-yet. Before the first public release:
+yet. English runtime text is now shipped in `translations/en.json`, and private
+staging CI runs unit tests, Ruff, the repository privacy contract, and Home
+Assistant `hassfest`.
 
-- replace the `OWNER` placeholder in `manifest.json` and add the real GitHub
-  code owner;
+The remaining gates before the first public release are:
+
 - select and add a public-source license;
-- run Home Assistant `hassfest`, HACS validation, tests, and a secret scan;
-- validate setup, refresh, expired-session recovery, unload, and reinstall in
-  a disposable Home Assistant instance;
-- publish the Windows companion separately and keep its unsigned artifacts and
-  checksums outside this HACS repository.
+- replace the neutral `OWNER` placeholder in `manifest.json`, add the final
+  GitHub code owner and issue URL, and rerun the neutrality contract. The
+  current staging account handle conflicts with that contract and therefore is
+  intentionally not embedded in tracked public source;
+- make the reviewed repository public, then enable and pass the official HACS
+  validation action;
+- validate setup, refresh, expired-session recovery, unload, reinstall, and
+  diagnostics in a disposable Home Assistant instance;
+- publish the Windows companion separately and keep its unsigned or signed
+  release artifacts and checksums outside this HACS repository.
 
 HACS requires a public GitHub repository for normal distribution. A private
 remote is useful for CI and review, but functional testing during that phase
-must use a local copy of `custom_components/taipower_ami`.
+must use a local copy of `custom_components/taipower_ami`. HACS validation is
+intentionally not enabled while this repository is private and has no selected
+license; it must be added and pass after both gates are satisfied.
+
+No open-source license has been selected yet. Until a license is added, the
+repository contents are not offered under an open-source license.
 
 ## Development
 
 Pure parser/client tests do not require Home Assistant:
 
 ```powershell
+python -m compileall -q custom_components tests
+ruff check .
 python -m unittest discover -s tests -v
 ```
 
 The client is synchronous by design because it uses Python's standard-library
 HTTP stack. Home Assistant calls it only through `async_add_executor_job`.
+
+CI actions are pinned to full commit hashes. The weekly scheduled run provides
+an additional signal for upstream `hassfest` changes; it does not replace the
+disposable Home Assistant validation gate.
 
 ## Security and privacy
 
@@ -111,7 +129,7 @@ HTTP stack. Home Assistant calls it only through `async_add_executor_job`.
 - Errors and diagnostics contain no `SESSION`, AMI identifier, cookies, or raw
   response bodies.
 - No household entity names, LAN addresses, UNC paths, notification services,
-  or signing identities belong in this repository.
+  personal email addresses, or signing identities belong in this repository.
 
-Report security concerns privately to the future repository owner. Do not open
-a public issue containing credentials or a captured browser session.
+Follow [SECURITY.md](SECURITY.md) for private reporting. Do not open a public
+issue containing credentials or a captured browser session.

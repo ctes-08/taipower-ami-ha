@@ -15,9 +15,21 @@ __pycache__/
 .storage/
 .taipower_ami/
 credentials.json
+cookies*.json
+session*.json
+token*.json
 *.har
 *.sqlite*
 secrets.yaml
+*.cer
+*.crt
+*.key
+*.p12
+*.pem
+*.pfx
+*.tar
+*.tgz
+*.zip
 
 # Editors and build outputs
 .idea/
