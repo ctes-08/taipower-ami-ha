@@ -54,6 +54,7 @@ class RepositoryContractTests(unittest.TestCase):
             ROOT / ".github" / "ISSUE_TEMPLATE" / "config.yml",
             ROOT / ".github" / "workflows" / "validate.yml",
             ROOT / "LICENSE",
+            ROOT / "PRIVACY.md",
             ROOT / "README.md",
             ROOT / "SECURITY.md",
             ROOT / "hacs.json",
@@ -162,6 +163,23 @@ class RepositoryContractTests(unittest.TestCase):
             checkout_count,
             workflow.count("persist-credentials: false"),
         )
+        self.assertIn("name: HACS repository validation", workflow)
+        self.assertIn("if: github.repository_visibility == 'public'", workflow)
+        self.assertIn("category: integration", workflow)
+        self.assertNotIn("ignore:", workflow)
+
+    def test_public_installation_and_privacy_are_documented(self):
+        readme = (ROOT / "README.md").read_text(encoding="utf-8")
+        privacy = (ROOT / "PRIVACY.md").read_text(encoding="utf-8")
+        self.assertIn("Custom repositories", readme)
+        self.assertIn(
+            "https://github.com/ctes-08/taipower-ami-ha",
+            readme,
+        )
+        self.assertIn("does not require an application to HACS", readme)
+        self.assertIn("no project-operated server", privacy)
+        self.assertIn("five fixed read-only AMI endpoints", privacy)
+        self.assertIn("does not delete the credential handoff file", privacy)
 
     def test_home_assistant_lifecycle_matrix_is_pinned(self):
         project = tomllib.loads((ROOT / "pyproject.toml").read_text(encoding="utf-8"))

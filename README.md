@@ -74,6 +74,23 @@ The default polling interval is 120 minutes and the accepted range is 60 to
 service. Avoid setting up external automations that repeatedly call the
 service.
 
+## Public installation with HACS
+
+After this repository is public, users can install it without waiting for
+default-store approval:
+
+1. In HACS, open the three-dot menu and select **Custom repositories**.
+2. Add `https://github.com/ctes-08/taipower-ami-ha` as an **Integration**.
+3. Find **Taipower AMI**, download it, restart Home Assistant, and add the
+   integration from **Settings > Devices & services**.
+
+That custom-repository route does not require an application to HACS. Inclusion
+in HACS's default repository list is a separate, later review. It requires a
+public repository, successful HACS and `hassfest` Actions without ignored
+checks, and a full GitHub Release created after those checks pass. Default-list
+review is not a prerequisite for installing this project as a custom
+repository.
+
 ## HACS publication status
 
 This source tree has HACS-compatible placement, but final publication gates
@@ -85,8 +102,8 @@ Home Assistant `hassfest`.
 
 The remaining gates before the first public release are:
 
-- make the reviewed repository public, then enable and pass the official HACS
-  validation action;
+- make the reviewed repository public, then run and pass the already configured
+  official HACS validation job;
 - complete a manual Windows-to-Home-Assistant handoff smoke test in a
   disposable instance. CI already exercises setup, refresh, reauthentication,
   unload, removal, re-add, and diagnostics with fake data and all non-local
@@ -102,9 +119,10 @@ kept in `hacs.json`.
 
 HACS requires a public GitHub repository for normal distribution. A private
 remote is useful for CI and review, but functional testing during that phase
-must use a local copy of `custom_components/taipower_ami`. HACS validation is
-intentionally not enabled while this repository is private; it must be added
-and pass after the visibility gate is satisfied.
+must use a local copy of `custom_components/taipower_ami`. The official HACS
+job is pinned to a reviewed action commit and has no ignored checks. It is
+intentionally skipped while GitHub reports this repository as private and will
+run after the visibility gate is satisfied.
 
 ## Development
 
@@ -171,6 +189,9 @@ disposable Home Assistant validation gate.
 
 Follow [SECURITY.md](SECURITY.md) for private reporting. Do not open a public
 issue containing credentials or a captured browser session.
+
+The complete data flow, local retention boundary, and operator controls are
+documented in [PRIVACY.md](PRIVACY.md).
 
 ## License
 
