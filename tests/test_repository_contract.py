@@ -164,6 +164,15 @@ class RepositoryContractTests(unittest.TestCase):
             workflow.count("persist-credentials: false"),
         )
         self.assertIn("name: HACS repository validation", workflow)
+        tls_job = workflow.split("  tls-compatibility:\n", 1)[1].split(
+            "\n  repository-contract:", 1
+        )[0]
+        self.assertIn("name: TLS compatibility (Python 3.14)", tls_job)
+        self.assertIn('python-version: "3.14"', tls_job)
+        self.assertIn(
+            'python -m unittest discover -s tests -p "test_api.py" -v',
+            tls_job,
+        )
         self.assertIn("if: github.repository_visibility == 'public'", workflow)
         self.assertIn("category: integration", workflow)
         self.assertNotIn("ignore:", workflow)
@@ -176,7 +185,17 @@ class RepositoryContractTests(unittest.TestCase):
             "https://github.com/ctes-08/taipower-ami-ha",
             readme,
         )
+        self.assertIn(
+            "https://github.com/ctes-08/taipower-ami-windows",
+            readme,
+        )
         self.assertIn("does not require an application to HACS", readme)
+        self.assertNotIn("After this repository is public", readme)
+        self.assertNotIn(
+            "intentionally skipped while GitHub reports this repository as private",
+            readme,
+        )
+        self.assertIn("VERIFY_X509_STRICT", readme)
         self.assertIn("no project-operated server", privacy)
         self.assertIn("five fixed read-only AMI endpoints", privacy)
         self.assertIn("does not delete the credential handoff file", privacy)

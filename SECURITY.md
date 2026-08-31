@@ -2,11 +2,11 @@
 
 ## Reporting a vulnerability
 
-Do not include security details in a public issue. After this repository is
-public, use **Security > Report a vulnerability** on GitHub to start a private
-security advisory. If private vulnerability reporting is not available, open
-only a minimal issue asking the maintainer to enable a private reporting
-channel; do not include reproduction details in that issue.
+Do not include security details in a public issue. If GitHub displays
+**Security > Report a vulnerability**, use it to start a private security
+advisory. If private vulnerability reporting is not available, open only a
+minimal issue asking the maintainer to enable a private reporting channel; do
+not include reproduction details in that issue.
 
 Never upload or paste any of the following:
 
@@ -27,8 +27,8 @@ diagnostics before sharing them.
 ## Supported versions
 
 This project is alpha software. Security fixes are made only on the current
-default branch and, after releases exist, the latest published release. Older
-commits and unreleased local builds are not supported.
+default branch and the latest published release. Older commits and unreleased
+local builds are not supported.
 
 ## Scope
 

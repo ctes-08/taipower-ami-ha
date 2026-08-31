@@ -9,9 +9,14 @@ This repository is the Home Assistant half of a two-part design:
 1. **This HACS/custom integration** reads a minimal credential handoff file,
    calls five existing AMI endpoints with GET requests, and publishes compact
    sensors.
-2. **A separate Windows companion** performs the user-initiated browser
-   handoff after a normal Taipower login. HACS cannot install or update that
-   Windows program.
+2. **The separate
+   [Windows companion](https://github.com/ctes-08/taipower-ami-windows)**
+   performs the user-initiated browser handoff after a normal Taipower login.
+   HACS cannot install or update that Windows program.
+
+Install the companion only from a supported Release in its own repository.
+The companion repository is public, but it does not currently have a supported
+public binary Release; a source checkout is not an approved installer.
 
 The integration does not automate login, solve or bypass Cloudflare Turnstile,
 store an account password, or scan Taipower endpoints.
@@ -58,11 +63,12 @@ not perform synchronous disk or network I/O.
 
 ## Manual alpha installation
 
-For local development or a manual test installation, copy this directory into
-the Home Assistant instance:
+For local development or a manual test installation, copy the repository's
+`custom_components/taipower_ami` directory to this exact destination in the
+Home Assistant instance:
 
 ```text
-custom_components/taipower_ami
+/config/custom_components/taipower_ami/
 ```
 
 Restart Home Assistant, then add **Taipower AMI** from
@@ -76,8 +82,10 @@ service.
 
 ## Public installation with HACS
 
-After this repository is public, users can install it without waiting for
-default-store approval:
+This repository is public, so users can install it without waiting for
+default-store approval. HACS installs only the Home Assistant half; the
+separate Windows companion remains a prerequisite and follows its own release
+process.
 
 1. In HACS, open the three-dot menu and select **Custom repositories**.
 2. Add `https://github.com/ctes-08/taipower-ami-ha` as an **Integration**.
@@ -99,12 +107,17 @@ repository privacy contract, and socket-blocked lifecycle tests against both
 the declared minimum Home Assistant 2025.12.0 release and the reviewed stable
 Home Assistant 2026.8.3 release.
 
-The first public release remains an alpha intended for HACS custom-repository
-installation and Windows-to-Home-Assistant handoff smoke testing. CI exercises
-setup, refresh, reauthentication, unload, removal, re-add, and diagnostics with
-fake data and all non-local sockets blocked. The Windows companion is published
-separately; its unsigned or signed artifacts and checksums do not belong in this
-HACS repository.
+The latest published version, `0.1.0-alpha.2`, remains an alpha intended for
+HACS custom-repository installation and Windows-to-Home-Assistant handoff smoke
+testing. CI exercises setup, refresh, reauthentication, unload, removal,
+re-add, and diagnostics with fake data and all non-local sockets blocked. The
+Windows companion is maintained in a separate repository and release channel;
+its unsigned or signed artifacts and checksums do not belong in this HACS
+repository.
+
+After every HACS update, restart Home Assistant before judging the result.
+Users upgrading from `0.1.0-alpha.1` must install `0.1.0-alpha.2` or newer to
+receive the Python 3.14 TLS compatibility fix.
 
 The HACS metadata identifies this Taiwan-only service with `country: TW` and
 declares Home Assistant 2025.12.0 as its minimum supported release. Both that
@@ -112,12 +125,10 @@ minimum and the reviewed stable release are exercised by the isolated lifecycle
 matrix. Only keys documented by the current HACS manifest specification are
 kept in `hacs.json`.
 
-HACS requires a public GitHub repository for normal distribution. A private
-remote is useful for CI and review, but functional testing during that phase
-must use a local copy of `custom_components/taipower_ami`. The official HACS
-job is pinned to a reviewed action commit and has no ignored checks. It is
-intentionally skipped while GitHub reports this repository as private and will
-run after the visibility gate is satisfied.
+The official HACS job runs for this public repository, is pinned to a reviewed
+action commit, and has no ignored checks. Both the default branch and published
+release tags must pass it alongside `hassfest`, the repository contract, unit
+tests, and the supported Home Assistant lifecycle matrix.
 
 ## Development
 
@@ -175,8 +186,12 @@ disposable Home Assistant validation gate.
 ## Security and privacy
 
 - No account password or CAPTCHA material is accepted.
-- Redirects and non-JSON responses are treated as authentication failures.
+- Redirects, HTTP 401, and HTTP 403 are treated as authentication failures;
+  non-JSON responses are rejected as temporary connection or service failures.
 - Only the official HTTPS host and fixed AMI API paths are used.
+- Python 3.14 compatibility clears only OpenSSL's `VERIFY_X509_STRICT` flag for
+  Taipower's legacy TWCA chain. CA trust, hostname, validity-period, and
+  signature verification remain enabled.
 - Errors and diagnostics contain no `SESSION`, AMI identifier, cookies, or raw
   response bodies.
 - No household entity names, LAN addresses, UNC paths, notification services,

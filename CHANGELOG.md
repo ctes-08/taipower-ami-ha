@@ -17,6 +17,6 @@ Windows-to-Home-Assistant handoff testing.
   manual refresh button.
 - Reads the existing relative credential handoff file without storing account
   passwords in Home Assistant.
-- Keeps the Windows companion as a separate installation and release.
+- Keeps the Windows companion in a separate repository and release channel.
 - Validates the integration against Home Assistant 2025.12.0 and 2026.8.3.
 - Sends no maintainer telemetry or analytics.
